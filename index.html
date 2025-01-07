@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON Server Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test JSON Server</h1>
+    <textarea id="jsonInput" rows="5" cols="50">{
+    "message": "Hello, server! This is JSON data from the web page."
+}</textarea>
+    <br><br>
+    <button onclick="sendRequest('POST')">Send POST Request</button>
+    <button onclick="sendRequest('GET')">Send GET Request</button>
+    <div id="response" class="response"></div>
+
+    <script>
+        async function sendRequest(method) {
+            try {
+                const response = await fetch('http://localhost:8080', {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: document.getElementById('jsonInput').value
+                });
+                const data = await response.json();
+                document.getElementById('response').innerText = 
+                    `Response:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('response').innerText = 
+                    `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
