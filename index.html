@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSON Server Test</title>
+    <title>Тестирование JSON сервера</title>
     <style>
         body { 
             font-family: Arial, sans-serif;
@@ -14,35 +14,87 @@
             padding: 10px;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .examples {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
-    <h1>Test JSON Server</h1>
-    <textarea id="jsonInput" rows="5" cols="50">{
-    "message": "Hello, server! This is JSON data from the web page."
+    <h1>Тестирование JSON сервера</h1>
+    <textarea id="jsonInput" rows="8" cols="50">{
+    "name": "Иван Иванов",
+    "email": "ivan@example.com",
+    "id": "1234"
 }</textarea>
     <br><br>
-    <button onclick="sendRequest('POST')">Send POST Request</button>
-    <button onclick="sendRequest('GET')">Send GET Request</button>
+    <button onclick="sendRequest('POST')">Отправить POST</button>
+    <button onclick="sendRequest('GET')">Отправить GET</button>
     <div id="response" class="response"></div>
+
+    <div class="examples">
+        <h3>Примеры JSON:</h3>
+        <pre>
+// Правильный запрос
+{
+    "name": "Иван Иванов",
+    "email": "ivan@example.com",
+    "id": 1234
+}
+
+// Неправильный email
+{
+    "name": "Иван Иванов",
+    "email": "invalid-email",
+    "id": 1234
+}
+
+// Отрицательный ID
+{
+    "name": "Иван Иванов",
+    "email": "ivan@example.com",
+    "id": -1
+}
+        </pre>
+    </div>
 
     <script>
         async function sendRequest(method) {
             try {
-                const response = await fetch('http://localhost:8080', {
+                // Проверяем валидность JSON перед отправкой
+                let jsonData;
+                try {
+                    jsonData = JSON.parse(document.getElementById('jsonInput').value);
+                } catch (e) {
+                    throw new Error('Неверный формат JSON. Проверьте синтаксис.');
+                }
+
+                const response = await fetch('http://localhost:8080/users/create', {
                     method: method,
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: document.getElementById('jsonInput').value
+                    body: JSON.stringify(jsonData)
                 });
+
                 const data = await response.json();
-                document.getElementById('response').innerText = 
-                    `Response:\n${JSON.stringify(data, null, 2)}`;
+                const responseElement = document.getElementById('response');
+                responseElement.innerText = `Ответ:\n${JSON.stringify(data, null, 2)}`;
+                responseElement.className = data.status === 'success' ? 
+                    'response success' : 'response error';
             } catch (error) {
-                document.getElementById('response').innerText = 
-                    `Error: ${error.message}`;
+                const responseElement = document.getElementById('response');
+                responseElement.innerText = `Ошибка: ${error.message}`;
+                responseElement.className = 'response error';
             }
         }
     </script>
